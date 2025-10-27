@@ -133,7 +133,7 @@ USE_TZ = True
 
 GITHUB_USERNAME = "Faith144"
 GITHUB_REPO = 'Sermon'
-GITHUB_BRANCH = 'main'
+GITHUB_BRANCH = "master"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
