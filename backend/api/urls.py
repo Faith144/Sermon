@@ -7,6 +7,9 @@ from .views import (
     is_authenticated,
     register,
     get_sermon,
+    create_sermon,
+    get_telegram_audios,
+    create_telegram_audio,
 )
 
 urlpatterns = [
@@ -17,4 +20,7 @@ urlpatterns = [
     path("authenticated/", is_authenticated),
     path("register/", register),
     path("sermon/", get_sermon),
+    path("sermon/create/", create_sermon),
+    path("telegram_audios/", get_telegram_audios),
+    path("telegram_audios/create/", create_telegram_audio),
 ]

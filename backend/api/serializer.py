@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Note, Preacher, Sermon
+from .models import Note, Preacher, Sermon, Telegram_audio
 from django.contrib.auth.models import User
 
 class NoteSerializer(serializers.ModelSerializer):
@@ -27,13 +27,26 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
-# class SermonCreationSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Sermon
-#         fields = ['title', 'preacher', 'youtube_url', 'note']
-#         read_only_fields = ["uploaded_by"]
+class SermonCreationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Sermon
+        fields = ['title', 'preacher', 'youtube_url', 'note']
+        read_only_fields = ["uploaded_by"]
 
 class SermonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sermon
         fields = ['title', 'preacher', 'youtube_url', 'note', 'uploaded_by']
+
+
+class TelegramAudioCreationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Telegram_audio
+        fields = ['title', 'audio_file']
+        read_only_fields = ["uploaded_by"]
+
+
+class TelegramAudioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Telegram_audio
+        fields = ['title', 'audio_file', 'uploaded_by']

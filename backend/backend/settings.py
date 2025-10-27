@@ -131,12 +131,19 @@ USE_I18N = True
 
 USE_TZ = True
 
+GITHUB_USERNAME = "Faith144"
+GITHUB_REPO = 'Sermon'
+GITHUB_BRANCH = 'main'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = "static/"
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+MEDIA_URL = MEDIA_URL = (
+    f"https://cdn.jsdelivr.net/gh/{GITHUB_USERNAME}/{GITHUB_REPO}@{GITHUB_BRANCH}/media/"
+)
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

@@ -1,7 +1,13 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
-from .models import Note, Sermon
-from .serializer import NoteSerializer, UserRegistrationSerializer, SermonSerializer
+from .models import Note, Sermon, Telegram_audio
+from .serializer import (
+    NoteSerializer, 
+    UserRegistrationSerializer, 
+    SermonSerializer, 
+    TelegramAudioSerializer,
+    TelegramAudioCreationSerializer,
+    SermonCreationSerializer)
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -126,3 +132,33 @@ def get_sermon(request):
         return Response(serializer.data)
     except:
         return Response({"sermon": "None"})
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def get_telegram_audios(request):
+    try:
+        audios = Telegram_audio.objects.all()
+        serializer = TelegramAudioSerializer(audios, many=True)
+        return Response(serializer.data)
+    except:
+        return Response({"audios": "None"})
+    
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def create_telegram_audio(request):
+    user = request.user
+    serializer = TelegramAudioCreationSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save(uploaded_by=user)
+        return Response(serializer.data)
+    return Response(serializer.errors)
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def create_sermon(request):
+    user = request.user
+    serializer = SermonCreationSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save(uploaded_by=user)
+        return Response(serializer.data)
+    return Response(serializer.errors)

@@ -28,3 +28,12 @@ class Sermon(models.Model):
     uploaded_by = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     def __str__(self):
         return self.title
+
+class Telegram_audio(models.Model):
+    title = models.CharField(max_length=200)
+    audio_file = models.FileField(upload_to='telegram_audios/')
+    date_uploaded = models.DateField(auto_now_add=True)
+    uploaded_by = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    
+    def __str__(self):
+        return self.title
