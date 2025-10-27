@@ -21,7 +21,7 @@ class Preacher(models.Model):
 
 class Sermon(models.Model):
     title = models.CharField(max_length=200)
-    preacher = models.ForeignKey(Preacher, on_delete=models.CASCADE, related_name='preacher')
+    preacher = models.ForeignKey(Preacher, on_delete=models.CASCADE, related_name='sermons')
     youtube_url = models.URLField()
     note = models.OneToOneField(Note, on_delete=models.DO_NOTHING)
     date_uploaded = models.DateField(auto_now_add=True)
@@ -29,11 +29,14 @@ class Sermon(models.Model):
     def __str__(self):
         return self.title
 
+
 class Telegram_audio(models.Model):
     title = models.CharField(max_length=200)
-    audio_file = models.FileField(upload_to='telegram_audios/')
+    audio_file = models.FileField(upload_to="telegram_audios/")
     date_uploaded = models.DateField(auto_now_add=True)
-    uploaded_by = models.ForeignKey(User, on_delete=models.DO_NOTHING)
-    
+    uploaded_by = models.ForeignKey(
+        User, on_delete=models.DO_NOTHING
+    )
+
     def __str__(self):
         return self.title
