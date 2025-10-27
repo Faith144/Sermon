@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 
-const BASE_URL = 'http://127.0.0.1:8000/api/'
+const BASE_URL = 'https://sermon-tut9.onrender.com/api/'
 const LOGIN_URL = `${BASE_URL}token/`
 const REFRESH_URL = `${BASE_URL}token/refresh/`
 const NOTES_URL = `${BASE_URL}notes/`
@@ -9,6 +9,8 @@ const LOGOUT_URL = `${BASE_URL}logout/`
 const AUTHENTICATED_URL = `${BASE_URL}authenticated/`
 const REGISTER_URL = `${BASE_URL}register/`
 const SERMON_URL = `${BASE_URL}sermon/`
+const TELEGRAM_AUDIO_URL = `${BASE_URL}telegram_audios/`
+
 
 export const login = async (username, password) => {
     const response = await axios.post(LOGIN_URL, { username: username, password: password }, { withCredentials: true })
@@ -39,6 +41,15 @@ export const get_sermon = async () => {
         return response.data
     } catch (err) {
         return ('No sermon available')
+    }
+}
+
+export const get_telegram_audios = async () => {
+    try {
+        const reponse = await axios.get(TELEGRAM_AUDIO_URL, { withCredentials: true })
+        return reponse.data
+    } catch (err) {
+        return ('No telegram Audio Found')
     }
 }
 

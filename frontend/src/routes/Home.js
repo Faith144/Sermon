@@ -1,12 +1,12 @@
-import { VStack, Heading, Button, Box, Text, Spinner, Alert, AlertIcon } from "@chakra-ui/react"
 import { useEffect, useState } from "react"
-import { logout, get_sermon } from "../endpoints/api"
+import { logout, get_sermon, get_telegram_audios } from "../endpoints/api"
 import { useNavigate } from "react-router-dom"
 
 const Home = () => {
     const [sermon, setSermon] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
+    const [telegram, setTelegram] = useState([])
     const nav = useNavigate()
     
     // Function to extract YouTube video ID from various URL formats
@@ -56,7 +56,21 @@ const Home = () => {
                 setLoading(false)
             }
         }
+
+        const fetchAudio = async () => {
+            try {
+                setLoading(true)
+                setError(null)
+                const audio = await get_telegram_audios()
+                setTelegram(audio)
+            } catch (err) {
+                setError("Failed to load Audio")
+            } finally {
+                setLoading(false)
+            }
+        }
         fetchSermon();
+        fetchAudio();
     }, [])
 
     const handleLogout = async () => {
@@ -72,92 +86,140 @@ const Home = () => {
 
     if (loading) {
         return (
-            <VStack spacing={4} p={8}>
-                <Spinner size="xl" />
-                <Text>Loading sermons...</Text>
-            </VStack>
+            <div className="container mt-5">
+                <div className="row justify-content-center">
+                    <div className="col-12 text-center">
+                        <div className="spinner-border text-primary" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                        </div>
+                        <p className="mt-3">Loading sermons...</p>
+                    </div>
+                </div>
+            </div>
         )
     }
 
     if (error) {
         return (
-            <VStack spacing={4} p={8}>
-                <Alert status="error">
-                    <AlertIcon />
-                    {error}
-                </Alert>
-                <Button onClick={() => window.location.reload()}>
-                    Try Again
-                </Button>
-            </VStack>
+            <div className="container mt-5">
+                <div className="row justify-content-center">
+                    <div className="col-12 col-md-8">
+                        <div className="alert alert-danger d-flex align-items-center" role="alert">
+                            <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                            <div>{error}</div>
+                        </div>
+                        <div className="text-center">
+                            <button 
+                                className="btn btn-primary" 
+                                onClick={() => window.location.reload()}
+                            >
+                                Try Again
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         )
     }
 
     return (
-        <VStack spacing={6} p={6}>
-            <Heading as="h1" size="xl" textAlign="center">
-                Welcome back user
-            </Heading>
-            
-            <VStack spacing={4} width="100%">
-                {sermon.length === 0 ? (
-                    <Text fontSize="lg" color="gray.500">
-                        No sermons available
-                    </Text>
-                ) : (
-                    sermon.map((sermonItem) => (
-                        <Box 
-                            key={sermonItem.id}
-                            width="100%" 
-                            maxWidth="560px"
-                            borderRadius="lg"
-                            overflow="hidden"
-                            boxShadow="md"
-                        >
-                            {sermonItem.validVideoId ? (
-                                <iframe
-                                    width="100%"
-                                    height="315"
-                                    src={`https://www.youtube.com/embed/${sermonItem.validVideoId}`}
-                                    title={sermonItem.title}
-                                    allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                    allowFullScreen 
-                                    loading="lazy"
-                                />
-                            ) : (
-                                <Box 
-                                    height="315" 
-                                    bg="gray.100" 
-                                    display="flex" 
-                                    alignItems="center" 
-                                    justifyContent="center"
-                                >
-                                    <Text color="gray.500" textAlign="center">
-                                        Invalid YouTube URL<br />
-                                        <Text fontSize="sm" as="span">
-                                            {sermonItem.youtube_url}
-                                        </Text>
-                                    </Text>
-                                </Box>
-                            )}
-                            <Box p={4} bg="white">
-                                <Text fontWeight="bold" fontSize="lg">
-                                    {sermonItem.title}
-                                </Text>
-                            </Box>
-                        </Box>
-                    ))
-                )}
-            </VStack>
-            
-            <Button 
-                onClick={handleLogout} 
-                colorScheme="red" 
-                size="lg"
-            >
-                Logout
-            </Button>
-        </VStack>
+        <div className="container mt-4">
+            {/* Header Section */}
+            <header className="row mb-5">
+                <div className="col-12 text-center">
+                    <h1 className="display-4 mb-3">Welcome back user</h1>
+                </div>
+            </header>
+
+            {/* Sermons Section */}
+            <section className="row mb-5">
+                <div className="col-12">
+                    <h2 className="h3 mb-4">Sermons</h2>
+                    {sermon.length === 0 ? (
+                        <div className="text-center py-4">
+                            <p className="text-muted lead">No sermons available</p>
+                        </div>
+                    ) : (
+                        <div className="row g-4">
+                            {sermon.map((sermonItem) => (
+                                <div key={sermonItem.id} className="col-12 col-lg-6">
+                                    <div className="card shadow-sm h-100">
+                                        {sermonItem.validVideoId ? (
+                                            <div className="ratio ratio-16x9">
+                                                <iframe
+                                                    src={`https://www.youtube.com/embed/${sermonItem.validVideoId}`}
+                                                    title={sermonItem.title}
+                                                    allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                    allowFullScreen
+                                                    loading="lazy"
+                                                />
+                                            </div>
+                                        ) : (
+                                            <div className="ratio ratio-16x9 bg-light d-flex align-items-center justify-content-center">
+                                                <div className="text-center text-muted">
+                                                    Invalid YouTube URL
+                                                    <br />
+                                                    <small>{sermonItem.youtube_url}</small>
+                                                </div>
+                                            </div>
+                                        )}
+                                        <div className="card-body">
+                                            <h5 className="card-title">{sermonItem.title}</h5>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </section>
+
+            {/* Telegram Audios Section */}
+            <section className="row mb-5">
+                <div className="col-12">
+                    <h2 className="h3 mb-4">Audio Messages</h2>
+                    {telegram.length === 0 ? (
+                        <div className="text-center py-4">
+                            <p className="text-muted lead">No Telegram Audios available</p>
+                        </div>
+                    ) : (
+                        <div className="row g-4">
+                            {telegram.map((audio) => (
+                                <div key={audio.id} className="col-12 col-lg-6">
+                                    <div className="card shadow-sm h-100">
+                                        <div className="card-body">
+                                            <h5 className="card-title">
+                                                {audio.title || "Untitled audio"}
+                                            </h5>
+                                            {audio.file_url && (
+                                                <div className="mt-3">
+                                                    <audio controls className="w-100">
+                                                        <source src={audio.file_url} />
+                                                        Your browser does not support the audio element.
+                                                    </audio>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </section>
+
+            {/* Logout Section */}
+            <section className="row">
+                <div className="col-12 text-center">
+                    <button 
+                        onClick={handleLogout} 
+                        className="btn btn-danger btn-lg"
+                    >
+                        Logout
+                    </button>
+                </div>
+            </section>
+        </div>
     )
 }
 

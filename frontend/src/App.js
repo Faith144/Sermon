@@ -1,7 +1,7 @@
 
 import './App.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-
+import 'bootstrap/dist/css/bootstrap.min.css';
 import { ChakraProvider } from '@chakra-ui/react'
 
 import { AuthProvider } from './context/useAuth';
