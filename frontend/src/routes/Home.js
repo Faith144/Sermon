@@ -61,10 +61,27 @@ const Home = () => {
             try {
                 setLoading(true)
                 setError(null)
-                const audio = await get_telegram_audios()
-                setTelegram(audio)
+                const response = await get_telegram_audios()
+                
+                console.log("Telegram API response:", response) // Debug log
+                
+                // Handle the response properly
+                if (Array.isArray(response)) {
+                    // Success case - it's an array of audio objects
+                    setTelegram(response)
+                } else if (response && response.audios === "None") {
+                    // Error case from backend
+                    console.warn("No telegram audios found")
+                    setTelegram([])
+                } else {
+                    // Unexpected response format
+                    console.warn("Unexpected telegram response format:", response)
+                    setTelegram([])
+                }
             } catch (err) {
                 setError("Failed to load Audio")
+                console.error("Error fetching telegram audio:", err)
+                setTelegram([])
             } finally {
                 setLoading(false)
             }
@@ -191,10 +208,10 @@ const Home = () => {
                                             <h5 className="card-title">
                                                 {audio.title || "Untitled audio"}
                                             </h5>
-                                            {audio.file_url && (
+                                            {audio.audio_file && (
                                                 <div className="mt-3">
                                                     <audio controls className="w-100">
-                                                        <source src={audio.file_url} />
+                                                        <source src={audio.audio_file} />
                                                         Your browser does not support the audio element.
                                                     </audio>
                                                 </div>

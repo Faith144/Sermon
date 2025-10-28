@@ -46,10 +46,11 @@ export const get_sermon = async () => {
 
 export const get_telegram_audios = async () => {
     try {
-        const reponse = await axios.get(TELEGRAM_AUDIO_URL, { withCredentials: true })
-        return reponse.data
+        const response = await axios.get(TELEGRAM_AUDIO_URL, { withCredentials: true })
+        return response.data
     } catch (err) {
-        return ('No telegram Audio Found')
+        console.error('Error fetching telegram audio:', err)
+        return []
     }
 }
 

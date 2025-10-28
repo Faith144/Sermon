@@ -141,8 +141,8 @@ def get_telegram_audios(request):
         serializer = TelegramAudioSerializer(audios, many=True)
         return Response(serializer.data)
     except:
-        return Response({"audios": "None"})
-    
+        return Response([], status=200)
+
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def create_telegram_audio(request):
