@@ -2,12 +2,13 @@ from django.shortcuts import render
 from django.contrib.auth.models import User
 from .models import Note, Sermon, Telegram_audio
 from .serializer import (
-    NoteSerializer, 
-    UserRegistrationSerializer, 
-    SermonSerializer, 
+    NoteSerializer,
+    UserRegistrationSerializer,
+    SermonSerializer,
     TelegramAudioSerializer,
     TelegramAudioCreationSerializer,
-    SermonCreationSerializer)
+    SermonCreationSerializer,
+)
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -133,6 +134,7 @@ def get_sermon(request):
     except:
         return Response({"sermon": "None"})
 
+
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def get_telegram_audios(request):
@@ -143,6 +145,7 @@ def get_telegram_audios(request):
     except:
         return Response([], status=200)
 
+
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def create_telegram_audio(request):
@@ -152,6 +155,7 @@ def create_telegram_audio(request):
         serializer.save(uploaded_by=user)
         return Response(serializer.data)
     return Response(serializer.errors)
+
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])

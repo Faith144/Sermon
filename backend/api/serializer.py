@@ -45,8 +45,19 @@ class TelegramAudioCreationSerializer(serializers.ModelSerializer):
         fields = ['title', 'audio_file']
         read_only_fields = ["uploaded_by"]
 
-
 class TelegramAudioSerializer(serializers.ModelSerializer):
+    audio_url = serializers.SerializerMethodField()
+
     class Meta:
         model = Telegram_audio
-        fields = ['title', 'audio_file', 'uploaded_by']
+        fields = [
+            "id",
+            "title",
+            "audio_file",
+            "audio_url",
+            "date_uploaded",
+            "uploaded_by",
+        ]
+
+    def get_audio_url(self, obj):
+        return obj.audio_file.url

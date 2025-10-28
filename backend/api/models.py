@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from cloudinary.models import CloudinaryField
 
 # Create your models here.
 
@@ -32,11 +33,18 @@ class Sermon(models.Model):
 
 class Telegram_audio(models.Model):
     title = models.CharField(max_length=200)
-    audio_file = models.FileField(upload_to="telegram_audios/")
-    date_uploaded = models.DateField(auto_now_add=True)
-    uploaded_by = models.ForeignKey(
-        User, on_delete=models.DO_NOTHING
+    # Change from FileField to CloudinaryField
+    audio_file = CloudinaryField(
+        resource_type="auto",  # 'auto' detects audio/video automatically
+        folder="sermon_audios/",  # Optional: organize files in folder
     )
+    date_uploaded = models.DateField(auto_now_add=True)
+    uploaded_by = models.ForeignKey("auth.User", on_delete=models.DO_NOTHING)
 
     def __str__(self):
         return self.title
+
+    @property
+    def audio_url(self):
+        """Get the Cloudinary URL for the audio file"""
+        return self.audio_file.url
