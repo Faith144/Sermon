@@ -36,13 +36,13 @@ class Sermon(models.Model):
     youtube_url = models.URLField()
     note = models.OneToOneField(
         Note,
-        on_delete=models.CASCADE,  # Changed from DO_NOTHING
+        on_delete=models.CASCADE,
         related_name="sermon_note",
     )
     date_uploaded = models.DateField(auto_now_add=True)
     uploaded_by = models.ForeignKey(
         User,
-        on_delete=models.CASCADE,  # Changed from DO_NOTHING
+        on_delete=models.CASCADE,
         related_name="uploaded_sermons",
     )
 
@@ -62,7 +62,7 @@ class Telegram_audio(models.Model):
     date_uploaded = models.DateField(auto_now_add=True)
     uploaded_by = models.ForeignKey(
         User,
-        on_delete=models.CASCADE,  # Changed from DO_NOTHING and fixed reference
+        on_delete=models.CASCADE,
         related_name="telegram_audios",
     )
 
