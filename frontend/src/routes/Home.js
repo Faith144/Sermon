@@ -13,12 +13,10 @@ const Home = () => {
     const getYouTubeVideoId = (url) => {
         if (!url) return null;
         
-        // If it's already just a video ID (no URL)
         if (url.length === 11 && !url.includes('/')) {
             return url;
         }
         
-        // Handle various YouTube URL formats
         const patterns = [
             /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?#]+)/,
             /youtube\.com\/watch\?.*v=([^&?#]+)/,
@@ -36,58 +34,80 @@ const Home = () => {
     }
 
     useEffect(() => {
-        const fetchSermon = async () => {
-            try {
-                setLoading(true)
-                setError(null)
-                const notes = await get_sermon()
+         const fetchAudio = async () => {
+        try {
+            setLoading(true)
+            setError(null)
+            const response = await get_telegram_audios()
+            
+            console.log("📢 RAW API RESPONSE:", response)
+            
+            // Check what's in each audio object
+            if (Array.isArray(response)) {
+                response.forEach((audio, index) => {
+                    console.log(`Audio ${index}:`, {
+                        title: audio.title,
+                        audio_file: audio.audio_file,
+                        has_url_field: !!audio.audio_file_url,
+                        full_object: audio
+                    })
+                })
                 
-                // Process sermons to ensure valid YouTube URLs
-                const processedSermons = notes.map(sermon => ({
-                    ...sermon,
-                    validVideoId: getYouTubeVideoId(sermon.youtube_url)
-                }))
-                
-                setSermon(processedSermons)
-            } catch (err) {
-                setError("Failed to load sermons")
-                console.error("Error fetching sermons:", err)
-            } finally {
-                setLoading(false)
+                setTelegram(response)
+            } else {
+                setTelegram([])
             }
+        } catch (err) {
+            setError("Failed to load Audio")
+            console.error("Error fetching telegram audio:", err)
+            setTelegram([])
+        } finally {
+            setLoading(false)
         }
-
-        const fetchAudio = async () => {
+    }
+        const fetchData = async () => {
             try {
                 setLoading(true)
                 setError(null)
-                const response = await get_telegram_audios()
                 
-                console.log("Telegram API response:", response) // Debug log
+                const [sermonsData, audioData] = await Promise.all([
+                    get_sermon().catch(err => {
+                        console.error("Error fetching sermons:", err);
+                        return [];
+                    }),
+                    get_telegram_audios().catch(err => {
+                        console.error("Error fetching audio:", err);
+                        return [];
+                    })
+                ]);
                 
-                // Handle the response properly
-                if (Array.isArray(response)) {
-                    // Success case - it's an array of audio objects
-                    setTelegram(response)
-                } else if (response && response.audios === "None") {
-                    // Error case from backend
-                    console.warn("No telegram audios found")
-                    setTelegram([])
+                // Process sermons
+                if (Array.isArray(sermonsData)) {
+                    const processedSermons = sermonsData.map(sermon => ({
+                        ...sermon,
+                        validVideoId: getYouTubeVideoId(sermon.youtube_url)
+                    }))
+                    setSermon(processedSermons)
                 } else {
-                    // Unexpected response format
-                    console.warn("Unexpected telegram response format:", response)
+                    setSermon([])
+                }
+                
+                // Process audio - Cloudinary URLs are already full URLs
+                if (Array.isArray(audioData)) {
+                    setTelegram(audioData)
+                } else {
                     setTelegram([])
                 }
+                
             } catch (err) {
-                setError("Failed to load Audio")
-                console.error("Error fetching telegram audio:", err)
-                setTelegram([])
+                setError("Failed to load content")
+                console.error("Error fetching data:", err)
             } finally {
                 setLoading(false)
             }
         }
-        fetchSermon();
         fetchAudio();
+        fetchData();
     }, [])
 
     const handleLogout = async () => {
@@ -109,7 +129,7 @@ const Home = () => {
                         <div className="spinner-border text-primary" role="status">
                             <span className="visually-hidden">Loading...</span>
                         </div>
-                        <p className="mt-3">Loading sermons...</p>
+                        <p className="mt-3">Loading content...</p>
                     </div>
                 </div>
             </div>
@@ -197,7 +217,7 @@ const Home = () => {
                     <h2 className="h3 mb-4">Audio Messages</h2>
                     {telegram.length === 0 ? (
                         <div className="text-center py-4">
-                            <p className="text-muted lead">No Telegram Audios available</p>
+                            <p className="text-muted lead">No audio messages available</p>
                         </div>
                     ) : (
                         <div className="row g-4">
@@ -208,12 +228,26 @@ const Home = () => {
                                             <h5 className="card-title">
                                                 {audio.title || "Untitled audio"}
                                             </h5>
-                                            {audio.audio_file && (
+                                            {audio.audio_file ? (
                                                 <div className="mt-3">
                                                     <audio controls className="w-100">
-                                                        <source src={audio.audio_file} />
+                                                        <source src={audio.audio_url} type="audio/mpeg" />
                                                         Your browser does not support the audio element.
                                                     </audio>
+                                                    <div className="mt-2">
+                                                        <a 
+                                                            href={audio.audio_url}
+                                                            target="_blank" 
+                                                            rel="noopener noreferrer"
+                                                            className="btn btn-sm btn-outline-primary"
+                                                        >
+                                                            Download Audio
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="alert alert-warning mt-3">
+                                                    Audio file not available
                                                 </div>
                                             )}
                                         </div>
